@@ -8,22 +8,17 @@ struct Piece {
     int width, height, price;
 };
 
-int maximizeValue(int X, int Y, vector<Piece>& pieces) {
-    int n = pieces.size();
-    vector<vector<int>> dp(X + 1, vector<int>(Y + 1, 0));
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j <= X; ++j) {
-            for (int k = 0; k <= Y; ++k) {
-                // Tenta incluir a peça atual o máximo de vezes possível
-                for (int count = 0; count * pieces[i].width <= j && count * pieces[i].height <= k; ++count) {
-                    dp[j][k] = max(dp[j][k], dp[j - count * pieces[i].width][k - count * pieces[i].height] + count * pieces[i].price);
-                }
-            }
-        }
+int maximizeValue(int items, int totalArea, vector<Piece>& pieces, vector<vector<int>>& memo) {
+    if(memo[items][totalArea] != -1){
+        return memo[items][totalArea];
     }
 
-    return dp[X][Y];
+    //caso base -> não há mais items || já não existe mais área
+    else if(items == 0 || totalArea == 0){
+        return 0;
+    }
+
+    else if (pieces[])
 }
 
 int main() {
