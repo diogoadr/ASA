@@ -20,26 +20,39 @@ int maximizeValue(const vector<Piece>& pieces, int remainingWidth, int remaining
         result = 0;
     }
 
-    // se a peça tiver dimensões maiores que a peça restante
-    //lógica: a peça não pode caber nem na horizontal, nem na vertical
-    else if ((pieces[remainingItems].width > remainingWidth && pieces[remainingItems].height > remainingHeight) ||
-        (pieces[remainingItems].width > remainingHeight || pieces[remainingItems].height > remainingWidth)){
+    int width = pieces[remainingItems].width;
+    int height = pieces[remainingItems].height;
+
+    // se a peça tiver dimensões diferentes em todos os lados
+    if ((width > remainingWidth || height > remainingHeight) &&
+        (width > remainingHeight || height > remainingWidth)){
         result = maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems-1, memo);
     }
 
-    // caso não seja preciso rodar a peça
-    else if (pieces[remainingItems].width <= remainingWidth || pieces[remainingItems].height <= remainingHeight) {
-            result = max(maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems-1, memo), 
-                pieces[remainingItems].price + maximizeValue(pieces, remainingWidth - pieces[remainingItems].width, remainingHeight, remainingItems, memo));
+    //corta a peça e tenta cortar novamente com a mesma peça
+    else{
+        int finalRemainingHeight = remainingHeight;
+        int finalRemainingWidth = remainingWidth;
+
+        if(remainingWidth == width && remainingWidth != height){
+            finalRemainingHeight -= height;
+
+        } else if(remainingHeight == height && remainingHeight != width){
+            finalRemainingWidth -= width;
+
+        } else if(remainingWidth == height){
+            finalRemainingHeight -= width;
+
+        } else if (remainingHeight == width){
+            finalRemainingWidth -= height;
         }
 
-    // caso seja preciso rodar a peça
-    else{
-        result = max(maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems, memo), 
-            pieces[remainingItems].price + maximizeValue(pieces, remainingWidth, remainingHeight - pieces[remainingItems].width, remainingItems, memo));
+        result = max(maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems - 1, memo), 
+            pieces[remainingItems].price + maximizeValue(pieces, finalRemainingWidth, finalRemainingHeight, remainingItems, memo));
 
     }
 
+    printf("%d ", result);
     memo[remainingItems][remainingWidth][remainingHeight] = result;
     return result;
 }
