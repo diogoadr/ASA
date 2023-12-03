@@ -2,76 +2,65 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
+int maxSum(int x, int y, std::vector<std::vector<int>> &dp){
 
-struct Piece {
-    int width, height, price;
-};
+    //value change
+    if(x == 1 && y == 1 || dp[x][y] != 0){
+        return dp[x][y];
+    }
+    //recursive part
+    int i = 1;
 
-int maximizeValue(const vector<Piece>& pieces, int remainingWidth, int remainingHeight, int remainingItems ,vector<vector<vector<int>>>& memo) {
+    for (int divisions = x/2; divisions > 0; divisions--){
+        dp[x][y] = std::max(dp[x][y], maxSum(x - i,  y, dp) + maxSum(i, y, dp)); 
+        i++;
+    }
+    i = 1;
 
-    if (memo[remainingItems][remainingWidth][remainingHeight] != -1) {
-        return memo[remainingItems][remainingWidth][remainingHeight];
+    for (int divisions = y/2; divisions > 0; divisions--){
+        dp[x][y] = std::max(dp[x][y], maxSum(x, y - i, dp) + maxSum(x, i, dp)); 
+        i++;
     }
 
-    int result = 0;
-    
-    if (remainingItems == 0 || remainingWidth == 0 || remainingHeight == 0) {
-        result = 0;
-    }
+}
 
-    int width = pieces[remainingItems].width;
-    int height = pieces[remainingItems].height;
+int maximizeValue(int X, int Y, std::vector<std::vector<int>>& pieces, std::vector<std::vector<int>> & dp) {
+    int size = pieces.size();
 
-    // se a peça tiver dimensões diferentes em todos os lados
-    if ((width > remainingWidth || height > remainingHeight) &&
-        (width > remainingHeight || height > remainingWidth)){
-        result = maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems-1, memo);
-    }
+    for (int x = 1; x <= X; x++) {
+        for (int y = 1; y <= Y; y++) {
 
-    //corta a peça e tenta cortar novamente com a mesma peça
-    else{
-        int finalRemainingHeight = remainingHeight;
-        int finalRemainingWidth = remainingWidth;
+            maxSum(x, y, dp);
 
-        if(remainingWidth == width && remainingWidth != height){
-            finalRemainingHeight -= height;
+            printf("(%d, %d): %d ",x, y, dp[x][y]);
 
-        } else if(remainingHeight == height && remainingHeight != width){
-            finalRemainingWidth -= width;
-
-        } else if(remainingWidth == height){
-            finalRemainingHeight -= width;
-
-        } else if (remainingHeight == width){
-            finalRemainingWidth -= height;
         }
-
-        result = max(maximizeValue(pieces, remainingWidth, remainingHeight, remainingItems - 1, memo), 
-            pieces[remainingItems].price + maximizeValue(pieces, finalRemainingWidth, finalRemainingHeight, remainingItems, memo));
-
+        printf("\n");
     }
 
-    printf("%d ", result);
-    memo[remainingItems][remainingWidth][remainingHeight] = result;
-    return result;
+    return dp[X][Y];
 }
 
 int main() {
-    int width, height;
-    cin >> width >> height;
+    int X, Y, n, x, y, price;
+    scanf("%d %d %d", &X, &Y, &n);
 
-    int items;
-    cin >> items;
-
-    vector<Piece> pieces(items + 1);
-    for (int i = 1; i <= items; ++i) {
-        cin >> pieces[i].width >> pieces[i].height >> pieces[i].price;
+    std::vector<std::vector<int>> pieces(n, std::vector<int>(3));
+    std::vector<std::vector<int>> dp(X + 1, std::vector<int>(Y + 1, 0));
+    
+    for (int i = 0; i < n; i++) {
+        scanf("%d %d %d", &x, &y, &price);
+        dp[x][y] = price;
     }
 
-    vector<vector<vector<int>>> memo(items + 1, vector<vector<int>>(width + 1, vector<int>(height + 1, -1)));
+    //forces X to be always larger
+    if(X < Y){
+        int a = Y;
+        Y = X;
+        X = a;
+    }
 
-    cout << maximizeValue(pieces, width, height, items, memo) << endl;
+    std::cout << maximizeValue(X, Y, pieces, dp) << std::endl;
 
     return 0;
 }
